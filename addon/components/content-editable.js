@@ -71,7 +71,11 @@ export default Ember.Component.extend({
 
   setValue() {
     if (this.element) {
-      this.$().text(this.get('value'));
+      if(this.get('type') === 'html'){
+        this.$().html(this.get('value'));
+      }else{
+        this.$().text(this.get('value'));
+      }
     }
   },
 
@@ -81,7 +85,6 @@ export default Ember.Component.extend({
     if (this.get('inputType') === "html") {
       // Deocde html entities
       let val = this.$().html();
-      val = this.$('<div/>').html(val).text();
       return val;
     } else {
       return this.element.innerText || this.element.textContent;
