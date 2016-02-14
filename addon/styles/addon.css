@@ -10,6 +10,6 @@
   color: #a9a9a9;
 }
 
-.ember-content-editable:empty:after {
+/*.ember-content-editable:empty:after {
   content: "\0000a0";
-}
+}*/
