@@ -132,8 +132,10 @@ export default Ember.Component.extend({
 
   /* Events */
   handlePaste(event, _this) {
+    event.preventDefault();
     let content = event.originalEvent.clipboardData.getData('text');
     const currentVal = _this._getInputValue();
+    this.set('value', content);
 
     if (!Ember.isEmpty(_this.get('maxlength'))) {
       event.preventDefault();
