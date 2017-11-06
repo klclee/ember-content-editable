@@ -32,6 +32,7 @@ export default Ember.Component.extend({
   type: null,
   readonly: null,
   allowNewlines: true,
+  disabledChinese: true,
 
   inputType: Ember.computed('type', 'isText', function() {
     if (this.get('isText') !== null) {
@@ -74,6 +75,9 @@ export default Ember.Component.extend({
       if(this.get('type') === 'html'){
         this.$().html(this.get('value'));
       }else{
+        if (!Ember.isEmpty(this.get('value')) && this.get('disabledChinese')) {
+          this.$().text(this.get('value').replace(/[\u4E00-\u9FCC\u3400-\u4DB5\uFA0E\uFA0F\uFA11\uFA13\uFA14\uFA1F\uFA21\uFA23\uFA24\uFA27-\uFA29]|[\ud840-\ud868][\udc00-\udfff]|\ud869[\udc00-\uded6\udf00-\udfff]|[\ud86a-\ud86c][\udc00-\udfff]|\ud86d[\udc00-\udf34\udf40-\udfff]|\ud86e[\udc00-\udc1d]/g, ""));
+        }
         this.$().text(this.get('value'));
       }
     }
@@ -170,6 +174,10 @@ export default Ember.Component.extend({
       value = value.toString().replace(/[^0-9]/g, '');
     }
 
+    if (this.get('disabledChinese')) {
+      value = value.toString().replace(/[\u4E00-\u9FCC\u3400-\u4DB5\uFA0E\uFA0F\uFA11\uFA13\uFA14\uFA1F\uFA21\uFA23\uFA24\uFA27-\uFA29]|[\ud840-\ud868][\udc00-\udfff]|\ud869[\udc00-\uded6\udf00-\udfff]|[\ud86a-\ud86c][\udc00-\udfff]|\ud86d[\udc00-\udf34\udf40-\udfff]|\ud86e[\udc00-\udc1d]/g, "");
+    }
+
     this.set('value', value);
     this.set('_observeValue', true);
   },
@@ -228,19 +236,47 @@ export default Ember.Component.extend({
     this.sendAction('key-press', this, event);
   },
 
+  keyUp() {
+    if (this.get('disabledChinese')) {
+      this.disableChinese();
+    }
+  },
+  mouseUp() {
+    if (this.get('disabledChinese')) {
+      this.disableChinese();
+    }
+  },
+
   focusIn(event) {
     this.sendAction('focus-in', this, event);
   },
 
   focusOut(event) {
+    if (this.get('disabledChinese')) {
+      this.disableChinese();
+    }
     this.sendAction('focus-out', this, event);
   },
 
   mouseEnter(event) {
+    if (this.get('disabledChinese')) {
+      this.disableChinese();
+    }
     this.sendAction('mouse-enter', this, event);
   },
 
   mouseLeave(event) {
+    if (this.get('disabledChinese')) {
+      this.disableChinese();
+    }
     this.sendAction('mouse-leave', this, event);
   },
+
+  disableChinese() {
+    if (!Ember.isEmpty(this.value)) {
+      event.preventDefault();
+      var nonChinese = this.value.toString().replace(/[\u4E00-\u9FCC\u3400-\u4DB5\uFA0E\uFA0F\uFA11\uFA13\uFA14\uFA1F\uFA21\uFA23\uFA24\uFA27-\uFA29]|[\ud840-\ud868][\udc00-\udfff]|\ud869[\udc00-\uded6\udf00-\udfff]|[\ud86a-\ud86c][\udc00-\udfff]|\ud86d[\udc00-\udf34\udf40-\udfff]|\ud86e[\udc00-\udc1d]/g, "");
+      this.set('value', nonChinese);
+    }
+  }
 });
